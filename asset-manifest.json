@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/zh-char-puzzle/static/css/main.739c858f.css",
+    "main.js": "/zh-char-puzzle/static/js/main.93e5dd24.js",
+    "static/js/787.3500bfec.chunk.js": "/zh-char-puzzle/static/js/787.3500bfec.chunk.js",
+    "index.html": "/zh-char-puzzle/index.html",
+    "main.739c858f.css.map": "/zh-char-puzzle/static/css/main.739c858f.css.map",
+    "main.93e5dd24.js.map": "/zh-char-puzzle/static/js/main.93e5dd24.js.map",
+    "787.3500bfec.chunk.js.map": "/zh-char-puzzle/static/js/787.3500bfec.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.739c858f.css",
+    "static/js/main.93e5dd24.js"
+  ]
+}
