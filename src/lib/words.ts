@@ -40,7 +40,6 @@ Object.keys(charToSymbols).forEach((char) => {
   })
 })
 
-
 const getRandomRange = (rng: prng, start: number, range: number) => {
   return Math.abs(rng.int32() % range) + start
 }
@@ -73,39 +72,42 @@ const randomSort = <T>(rng: prng, arr: T[]) => {
  * It is a group of characters that share different level of affinity with the input symbols
  * The affinity between two set of symbols is defined as the number of shared symbols two set of symbols
  * The affinity between a char to a set of symbols is determined by the set of symbols used by the char
- * 
+ *
  * The first index indicates how many symbols are in-common
  * Pleast note that the first element is always an empty string[] because we don't want to include characters with zero affinity
  */
 const getCharsWithVariousAffinitiy = (symbols: number[]) => {
-  let charToSymbolCounter : { [key: string]: number } = {}
-  symbols.forEach(symbol => {
-    symbolToChars.get(symbol)?.forEach(char => {
+  let charToSymbolCounter: { [key: string]: number } = {}
+  symbols.forEach((symbol) => {
+    symbolToChars.get(symbol)?.forEach((char) => {
       if (char in charToSymbolCounter) {
         charToSymbolCounter[char] += 1
-      }
-      else {
+      } else {
         charToSymbolCounter[char] = 1
       }
     })
   })
 
-  
-  return Object.keys(charToSymbolCounter)
-  .reduce<string[][]>(
-      (prev, char) => {
+  return Object.keys(charToSymbolCounter).reduce<string[][]>(
+    (prev, char) => {
       let affinity = charToSymbolCounter[char]
       console.assert(affinity > 0)
       prev[affinity].push(char)
       return prev
     },
-    Array(symbols.length + 1).fill(0).map((_) => []) // Because JS array is zero-based. We can only access arr[N] if its length is N + 1
+    Array(symbols.length + 1)
+      .fill(0)
+      .map((_) => []) // Because JS array is zero-based. We can only access arr[N] if its length is N + 1
   )
 }
 
-const getSymbolsFromSimilarChar = (rng: prng, charsWithVariousAffinitiy: string[][], solutionSymbolCounts: number) => {
+const getSymbolsFromSimilarChar = (
+  rng: prng,
+  charsWithVariousAffinitiy: string[][],
+  solutionSymbolCounts: number
+) => {
   let minBar = Math.floor(solutionSymbolCounts / 2)
-  
+
   for (let affinity = minBar; affinity <= solutionSymbolCounts; affinity++) {
     let chars = charsWithVariousAffinitiy[affinity]
     if (chars.length !== 0) {
@@ -127,8 +129,8 @@ const getCandidateSymbols = (rng: prng, solutionSymbols: number[]) => {
   if (isComplexSolution) {
     ret = ret.concat(
       getSymbolsFromSimilarChar(
-        rng, 
-        charsWithVariousAffinitiy, 
+        rng,
+        charsWithVariousAffinitiy,
         solutionSymbols.length
       )
     )
@@ -137,10 +139,11 @@ const getCandidateSymbols = (rng: prng, solutionSymbols: number[]) => {
   let charsWithMinAffinity = new Set(charsWithVariousAffinitiy[1])
   let symbolIndex = getRandomIndex(rng, solutionSymbols)
 
-  for (let addedCharCount = 0, searchedSymbolCount = 0;
-       addedCharCount < 4 && searchedSymbolCount < solutionSymbols.length;
-       searchedSymbolCount++) {
-
+  for (
+    let addedCharCount = 0, searchedSymbolCount = 0;
+    addedCharCount < 4 && searchedSymbolCount < solutionSymbols.length;
+    searchedSymbolCount++
+  ) {
     let sourceChars = symbolToChars.get(solutionSymbols[symbolIndex]) || []
 
     let validChar = ''
@@ -164,18 +167,15 @@ const getCandidateSymbols = (rng: prng, solutionSymbols: number[]) => {
   ret = dedup(ret)
 
   let charsWithAnyAffinity = charsWithVariousAffinitiy.reduce((prev, chars) => {
-
-    chars.forEach(char => {
+    chars.forEach((char) => {
       prev.add(char)
     })
 
     return prev
-  },
-  new Set<string>())
+  }, new Set<string>())
 
   let iteration = 0
   while (ret.length < 23 && iteration < 100) {
-
     let char = getRandomElement(rng, allSolutionChars)
     if (!charsWithAnyAffinity.has(char)) {
       ret = ret.concat(charToSymbols[char])
