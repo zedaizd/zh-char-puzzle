@@ -21,11 +21,11 @@ import {
 } from './constants/strings'
 import {
   isWordInWordList,
-  isWinningWord,
   getCharSymbols,
-  solution,
-  solutionSymbols,
-  possibleSymbols,
+  defaultSolution,
+  defaultSolutionSymbols,
+  defaultPossibleSymbols,
+  getRandomWord,
 } from './lib/words'
 import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import {
@@ -43,6 +43,11 @@ function App() {
   const prefersDarkMode = window.matchMedia(
     '(prefers-color-scheme: dark)'
   ).matches
+
+  const [solution, setSolution] = useState(defaultSolution)
+  const [solutionSymbols, setSolutionSymbols] = useState(defaultSolutionSymbols)
+  const [possibleSymbols, setPossibleSymbols] = useState(defaultPossibleSymbols)
+  const [isDaily, setIsDaily] = useState(true)
 
   const [currentGuess, setCurrentGuess] = useState('')
   const [isGameWon, setIsGameWon] = useState(false)
@@ -66,10 +71,10 @@ function App() {
   const [guesses, setGuesses] = useState<string[]>(() => {
     const loaded = loadGameStateFromLocalStorage()
 
-    if (loaded?.solution !== solution) {
+    if (loaded?.solution !== defaultSolution) {
       return []
     }
-    const gameWasWon = loaded.guesses.includes(solution)
+    const gameWasWon = loaded.guesses.includes(defaultSolution)
     if (gameWasWon) {
       setIsGameWon(true)
     }
@@ -104,11 +109,13 @@ function App() {
   }
 
   useEffect(() => {
-    saveGameStateToLocalStorage({
-      guesses,
-      solution,
-    })
-  }, [guesses])
+    if (isDaily) {
+      saveGameStateToLocalStorage({
+        guesses,
+        solution,
+      })
+    }
+  }, [guesses, solution, isDaily])
 
   useEffect(() => {
     localStorage.setItem('isInfoRead', isInfoRead.toString())
@@ -137,6 +144,21 @@ function App() {
     }
   }
 
+  const handleNewRandomGame = () => {
+    const newWord = getRandomWord()
+    setSolution(newWord.solution)
+    setSolutionSymbols(newWord.solutionSymbols)
+    setPossibleSymbols(newWord.possibleSymbols)
+    setGuesses([])
+    setCurrentGuess('')
+    setIsGameWon(false)
+    setIsGameLost(false)
+    SetValidSymbols([])
+    setValidSymbolGuesses([])
+    setIsDaily(false)
+    setIsStatsModalOpen(false)
+  }
+
   const onEnter = () => {
     if (isGameWon || isGameLost) {
       return
@@ -155,7 +177,7 @@ function App() {
       }, ALERT_TIME_MS)
     }
 
-    const winningWord = isWinningWord(currentGuess)
+    const winningWord = solution === currentGuess
 
     if (currentGuess.length === 1 && guesses.length < 6 && !isGameWon) {
       setGuesses([...guesses, currentGuess])
@@ -174,16 +196,23 @@ function App() {
       setCurrentGuess('')
 
       if (winningWord) {
-        setStats(addStatsForCompletedGame(stats, guesses.length))
+        if (isDaily) {
+          setStats(addStatsForCompletedGame(stats, guesses.length))
+        }
         return setIsGameWon(true)
       }
 
       if (guesses.length === 5) {
-        setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+        if (isDaily) {
+          setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+        }
         setIsGameLost(true)
       }
     }
   }
+
+  const previewSymbols =
+    currentGuess.length === 1 ? getCharSymbols(currentGuess) || [] : []
 
   return (
     <AppContext.Provider value={themeState}>
@@ -191,6 +220,9 @@ function App() {
         <div className="flex w-80 mx-auto items-center mb-8 mt-12">
           <h1 className="text-xl grow font-bold dark:text-white">
             {GAME_TITLE}
+            {!isDaily && (
+              <span className="text-xs ml-2 text-indigo-500">(Random)</span>
+            )}
           </h1>
           <SunIcon
             className="h-6 w-6 cursor-pointer dark:stroke-white"
@@ -206,11 +238,18 @@ function App() {
           />
         </div>
 
-        <Grid guesses={guesses} />
+        <Grid
+          guesses={guesses}
+          solution={solution}
+          solutionSymbols={solutionSymbols}
+          possibleSymbols={possibleSymbols}
+        />
         <HintPanel
           solution={solution}
           guesses={guesses}
+          solutionSymbols={solutionSymbols}
           possibleSymbols={possibleSymbols}
+          previewSymbols={previewSymbols}
         />
         <div>
           <InputCell value={currentGuess} onChar={onChar} onEnter={onEnter} />
@@ -239,6 +278,11 @@ function App() {
             setSuccessAlert(GAME_COPIED_MESSAGE)
             return setTimeout(() => setSuccessAlert(''), ALERT_TIME_MS)
           }}
+          solution={solution}
+          solutionSymbols={solutionSymbols}
+          possibleSymbols={possibleSymbols}
+          isDaily={isDaily}
+          handleNewRandomGame={handleNewRandomGame}
         />
         <AboutModal
           isOpen={isAboutModalOpen}

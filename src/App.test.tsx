@@ -1,7 +1,8 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import App from './App'
 import { GAME_TITLE } from './constants/strings'
+import { defaultSolution } from './lib/words'
 
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -17,10 +18,31 @@ beforeEach(() => {
       dispatchEvent: jest.fn(),
     })),
   })
+
+  class MockIntersectionObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+
+  Object.defineProperty(window, 'IntersectionObserver', {
+    writable: true,
+    configurable: true,
+    value: MockIntersectionObserver,
+  })
 })
 
 test('renders App component', () => {
   render(<App />)
   const linkElement = screen.getByText(GAME_TITLE)
   expect(linkElement).toBeInTheDocument()
+})
+
+test('highlights matching hint cards while typing a guess', () => {
+  const { container } = render(<App />)
+  const guessInput = screen.getByPlaceholderText('猜一字')
+  fireEvent.change(guessInput, { target: { value: defaultSolution } })
+
+  const highlightedHintKeys = container.querySelectorAll('button.ring-2')
+  expect(highlightedHintKeys.length).toBeGreaterThan(0)
 })

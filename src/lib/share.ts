@@ -1,18 +1,31 @@
 import { getGuessStatuses, getSymbolStatus } from './statuses'
-import { getCharSymbols, seedIndex } from './words'
+import { getCharSymbols } from './words'
 import { GAME_TITLE } from '../constants/strings'
 
-export const shareStatus = (guesses: string[], lost: boolean) => {
+export const shareStatus = (
+  guesses: string[],
+  lost: boolean,
+  solution: string,
+  solutionSymbols: number[],
+  possibleSymbols: number[],
+  seedIndex?: number
+) => {
   navigator.clipboard.writeText(
-    `${GAME_TITLE} ${seedIndex} ${lost ? 'X' : guesses.length}/6\n\n` +
-      generateEmojiGrid(guesses)
+    `${GAME_TITLE} ${seedIndex !== undefined ? seedIndex : 'Random'} ${
+      lost ? 'X' : guesses.length
+    }/6\n\n` + generateEmojiGrid(guesses, solution, solutionSymbols, possibleSymbols)
   )
 }
 
-export const generateEmojiGrid = (guesses: string[]) => {
+export const generateEmojiGrid = (
+  guesses: string[],
+  solution: string,
+  solutionSymbols: number[],
+  possibleSymbols: number[]
+) => {
   return guesses
     .map((guess) => {
-      if (getGuessStatuses(guess)[0] === 'correct') {
+      if (getGuessStatuses(guess, solution)[0] === 'correct') {
         return '⭐'
       }
 
@@ -22,7 +35,7 @@ export const generateEmojiGrid = (guesses: string[]) => {
         .map((s) => {
           // Intentionally reporting absent parts only.
           // Because we don't want to leak any information about the answer
-          if (getSymbolStatus(s) === 'absent') {
+          if (getSymbolStatus(s, solutionSymbols, possibleSymbols) === 'absent') {
             return '🟥'
           } else {
             return '⬜'

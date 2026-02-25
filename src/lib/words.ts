@@ -203,9 +203,7 @@ export const isWordInWordList = (word: string) => {
   )
 }
 
-export const isWinningWord = (word: string) => {
-  return solution === word
-}
+
 
 export const getWordOfDay = () => {
   // January 1, 2022 Game Epoch
@@ -232,10 +230,24 @@ export const getWordOfDay = () => {
   }
 }
 
+export const getRandomWord = () => {
+  const index = Math.floor(Math.random() * WORDS.length)
+  const solution = WORDS[index].toUpperCase()
+  const solutionSymbols = getCharSymbols(solution)
+  const rng = seedrandom(Math.random().toString())
+  const possibleSymbols = getCandidateSymbols(rng, solutionSymbols)
+
+  return {
+    solution: solution,
+    solutionSymbols: solutionSymbols,
+    possibleSymbols: possibleSymbols,
+  }
+}
+
 export const {
-  solution,
+  solution: defaultSolution,
   seedIndex,
-  solutionSymbols,
-  possibleSymbols,
+  solutionSymbols: defaultSolutionSymbols,
+  possibleSymbols: defaultPossibleSymbols,
   tomorrow,
 } = getWordOfDay()
