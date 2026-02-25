@@ -25,16 +25,14 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
       <p className="text-sm text-gray-500 dark:text-gray-300">
         字卡上是拆解答案的國字後得到的部件
         <br />
-        所有組成答案的部件都藏在中
+        請從字卡的部件重新拼湊，猜出答案的國字
         <br />
-        但是謎題顯示的字卡，混入了無關的部件
+        注意謎題顯示的字卡，混入了無關的部件
         <br />
         <br />
-        請根據字卡部件，猜測答案的國字
+        共有六次機會輸入答案，每次可測試一字
         <br />
-        共有六次機會輸入答案，每次可試一字
-        <br />
-        猜測字的部件，會改變字卡的顏色，顯示哪些部件在答案裡
+        測試字所含部件，會揭露對應字卡是否屬於答案
         <br />
         以下假設這關的答案是「左」
         <br />
@@ -46,9 +44,11 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
         <HintKey symbol={73} />
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-300">
-        如果猜「友」，會打中左邊的卡
+        如果猜「友」，會打中最左邊的卡
         <br />
-        卡片變綠色表示答案有這個部件
+        卡片變綠色表示答案(左)有這個部件
+        <br />
+        「又」這個部件，不在字卡上，不影響
         <br />
       </p>
 
