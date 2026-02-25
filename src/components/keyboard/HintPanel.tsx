@@ -5,18 +5,29 @@ import { HintKey } from './HintKey'
 type Props = {
   guesses: string[]
   solution: string
+  solutionSymbols: number[]
   possibleSymbols: number[]
+  previewSymbols?: number[]
 }
 
-export const HintPanel = ({ guesses, solution, possibleSymbols }: Props) => {
+export const HintPanel = ({
+  guesses,
+  solution,
+  solutionSymbols,
+  possibleSymbols,
+  previewSymbols = [],
+}: Props) => {
   let usedSymbols = guesses.reduce<number[]>((prev, current) => {
     return prev.concat(getCharSymbols(current))
   }, [])
   usedSymbols = usedSymbols.filter((v, i) => usedSymbols.indexOf(v) === i)
 
   const symbolStatuses = possibleSymbols.map((s) =>
-    usedSymbols.includes(s) ? getSymbolStatus(s) : undefined
+    usedSymbols.includes(s)
+      ? getSymbolStatus(s, solutionSymbols, possibleSymbols)
+      : undefined
   )
+  const previewSymbolSet = new Set(previewSymbols)
 
   const possibleSymbolIndexGroups: number[][] = []
   const groupSizes = possibleSymbols.length % 2 === 0 ? [7, 6] : [8, 7]
@@ -47,6 +58,7 @@ export const HintPanel = ({ guesses, solution, possibleSymbols }: Props) => {
               key={index}
               symbol={possibleSymbols[index]}
               status={symbolStatuses[index]}
+              isPreviewMatch={previewSymbolSet.has(possibleSymbols[index])}
             />
           ))}
         </div>

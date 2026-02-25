@@ -5,13 +5,22 @@ import { SymbolDisplay } from './SymbolDisplay'
 type Props = {
   guess: string
   symbols: number[]
+  solution: string
+  solutionSymbols: number[]
+  possibleSymbols: number[]
 }
 
-export const CompletedRow = ({ guess, symbols }: Props) => {
-  const statuses = getGuessStatuses(guess)
+export const CompletedRow = ({
+  guess,
+  symbols,
+  solution,
+  solutionSymbols,
+  possibleSymbols,
+}: Props) => {
+  const statuses = getGuessStatuses(guess, solution)
   const getSymbolDisplayClassName = (symbol: number) => {
     let ret = 'p-0.5 m-0.5 w-2/5 border-2 border-solid rounded'
-    switch (getSymbolStatus(symbol)) {
+    switch (getSymbolStatus(symbol, solutionSymbols, possibleSymbols)) {
       case 'absent':
         ret += ' border-red-400'
         break
