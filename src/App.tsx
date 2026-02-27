@@ -18,6 +18,8 @@ import {
   NOT_ENOUGH_LETTERS_MESSAGE,
   WORD_NOT_FOUND_MESSAGE,
   CORRECT_WORD_MESSAGE,
+  RANDOM_GAME_TEXT,
+  SWITCH_TO_RANDOM_CONFIRM_TEXT,
 } from './constants/strings'
 import {
   isWordInWordList,
@@ -93,7 +95,8 @@ function App() {
     return true
   })
 
-  const [stats, setStats] = useState(() => loadStats())
+  const [dailyStats, setDailyStats] = useState(() => loadStats('daily'))
+  const [randomStats, setRandomStats] = useState(() => loadStats('random'))
 
   useEffect(() => {
     if (isDarkMode) {
@@ -159,6 +162,18 @@ function App() {
     setIsStatsModalOpen(false)
   }
 
+  const handleSwitchToRandomGame = () => {
+    const isDailyUnfinished = isDaily && !isGameWon && !isGameLost
+    if (isDailyUnfinished) {
+      const confirmed = window.confirm(SWITCH_TO_RANDOM_CONFIRM_TEXT)
+      if (!confirmed) {
+        return
+      }
+    }
+
+    handleNewRandomGame()
+  }
+
   const onEnter = () => {
     if (isGameWon || isGameLost) {
       return
@@ -197,14 +212,26 @@ function App() {
 
       if (winningWord) {
         if (isDaily) {
-          setStats(addStatsForCompletedGame(stats, guesses.length))
+          setDailyStats((currentStats) =>
+            addStatsForCompletedGame(currentStats, guesses.length, 'daily')
+          )
+        } else {
+          setRandomStats((currentStats) =>
+            addStatsForCompletedGame(currentStats, guesses.length, 'random')
+          )
         }
         return setIsGameWon(true)
       }
 
       if (guesses.length === 5) {
         if (isDaily) {
-          setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+          setDailyStats((currentStats) =>
+            addStatsForCompletedGame(currentStats, guesses.length + 1, 'daily')
+          )
+        } else {
+          setRandomStats((currentStats) =>
+            addStatsForCompletedGame(currentStats, guesses.length + 1, 'random')
+          )
         }
         setIsGameLost(true)
       }
@@ -237,6 +264,17 @@ function App() {
             onClick={() => setIsStatsModalOpen(true)}
           />
         </div>
+        {isDaily && (
+          <div className="w-80 mx-auto -mt-4 mb-4 flex justify-end">
+            <button
+              type="button"
+              className="px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 select-none"
+              onClick={handleSwitchToRandomGame}
+            >
+              {RANDOM_GAME_TEXT}
+            </button>
+          </div>
+        )}
 
         <Grid
           guesses={guesses}
@@ -271,7 +309,8 @@ function App() {
           isOpen={isStatsModalOpen}
           handleClose={() => setIsStatsModalOpen(false)}
           guesses={guesses}
-          gameStats={stats}
+          dailyGameStats={dailyStats}
+          randomGameStats={randomStats}
           isGameLost={isGameLost}
           isGameWon={isGameWon}
           handleShare={() => {

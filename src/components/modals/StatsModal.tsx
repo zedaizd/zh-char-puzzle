@@ -11,13 +11,16 @@ import {
   NEW_WORD_TEXT,
   SHARE_TEXT,
   RANDOM_GAME_TEXT,
+  DAILY_GAME_TEXT,
+  RANDOM_STATS_TEXT,
 } from '../../constants/strings'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
   guesses: string[]
-  gameStats: GameStats
+  dailyGameStats: GameStats
+  randomGameStats: GameStats
   isGameLost: boolean
   isGameWon: boolean
   handleShare: () => void
@@ -32,7 +35,8 @@ export const StatsModal = ({
   isOpen,
   handleClose,
   guesses,
-  gameStats,
+  dailyGameStats,
+  randomGameStats,
   isGameLost,
   isGameWon,
   handleShare,
@@ -42,28 +46,31 @@ export const StatsModal = ({
   isDaily,
   handleNewRandomGame,
 }: Props) => {
-  if (gameStats.totalGames <= 0) {
-    return (
-      <BaseModal
-        title={STATISTICS_TITLE}
-        isOpen={isOpen}
-        handleClose={handleClose}
-      >
-        <StatBar gameStats={gameStats} />
-      </BaseModal>
-    )
-  }
+  const renderStatsSection = (title: string, gameStats: GameStats) => (
+    <section className="mt-2">
+      <h4 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+        {title}
+      </h4>
+      <StatBar gameStats={gameStats} />
+      {gameStats.totalGames > 0 && (
+        <>
+          <h5 className="text-sm leading-6 font-medium text-gray-900 dark:text-gray-100">
+            {GUESS_DISTRIBUTION_TEXT}
+          </h5>
+          <Histogram gameStats={gameStats} />
+        </>
+      )}
+    </section>
+  )
+
   return (
     <BaseModal
       title={STATISTICS_TITLE}
       isOpen={isOpen}
       handleClose={handleClose}
     >
-      <StatBar gameStats={gameStats} />
-      <h4 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
-        {GUESS_DISTRIBUTION_TEXT}
-      </h4>
-      <Histogram gameStats={gameStats} />
+      {renderStatsSection(DAILY_GAME_TEXT, dailyGameStats)}
+      {renderStatsSection(RANDOM_STATS_TEXT, randomGameStats)}
       {(isGameLost || isGameWon) && (
         <div className="mt-5 sm:mt-6 columns-2 dark:text-white">
           <div>

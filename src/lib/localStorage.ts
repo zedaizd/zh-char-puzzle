@@ -15,6 +15,10 @@ export const loadGameStateFromLocalStorage = () => {
 }
 
 const gameStatKey = 'gameStats'
+const gameStatDailyKey = 'gameStatsDaily'
+const gameStatRandomKey = 'gameStatsRandom'
+
+export type StatsGameMode = 'daily' | 'random'
 
 export type GameStats = {
   winDistribution: number[]
@@ -25,11 +29,31 @@ export type GameStats = {
   successRate: number
 }
 
-export const saveStatsToLocalStorage = (gameStats: GameStats) => {
-  localStorage.setItem(gameStatKey, JSON.stringify(gameStats))
+const getGameStatKey = (mode: StatsGameMode) => {
+  if (mode === 'random') {
+    return gameStatRandomKey
+  }
+
+  return gameStatDailyKey
 }
 
-export const loadStatsFromLocalStorage = () => {
-  const stats = localStorage.getItem(gameStatKey)
-  return stats ? (JSON.parse(stats) as GameStats) : null
+export const saveStatsToLocalStorage = (
+  gameStats: GameStats,
+  mode: StatsGameMode = 'daily'
+) => {
+  localStorage.setItem(getGameStatKey(mode), JSON.stringify(gameStats))
+}
+
+export const loadStatsFromLocalStorage = (mode: StatsGameMode = 'daily') => {
+  const stats = localStorage.getItem(getGameStatKey(mode))
+  if (stats) {
+    return JSON.parse(stats) as GameStats
+  }
+
+  if (mode === 'daily') {
+    const legacyStats = localStorage.getItem(gameStatKey)
+    return legacyStats ? (JSON.parse(legacyStats) as GameStats) : null
+  }
+
+  return null
 }

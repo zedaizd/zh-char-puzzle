@@ -18,3 +18,7 @@ export const SUCCESS_RATE_TEXT = '成功率'
 export const CURRENT_STREAK_TEXT = '目前連勝數'
 export const BEST_STREAK_TEXT = '最佳連勝數'
 export const RANDOM_GAME_TEXT = '隨機模式'
+export const DAILY_GAME_TEXT = '每日關卡'
+export const RANDOM_STATS_TEXT = '隨機關卡'
+export const SWITCH_TO_RANDOM_CONFIRM_TEXT =
+  '每日關卡尚未完成，確定要切換到隨機關卡嗎？'
